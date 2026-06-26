@@ -32,7 +32,7 @@ namespace POE_FINAL
                     return "No activities have been logged yet.";
 
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("📋 Activity Log (Last " + Math.Min(count, logs.Count) + " actions):");
+                sb.AppendLine(" Activity Log (Last " + Math.Min(count, logs.Count) + " actions):");
                 sb.AppendLine("----------------------------------------");
 
                 int startIndex = Math.Max(0, logs.Count - count);
@@ -46,7 +46,7 @@ namespace POE_FINAL
 
                 if (logs.Count > count)
                 {
-                    sb.AppendLine($"\n📌 {logs.Count - count} more entries. Type 'show full log' to see all.");
+                    sb.AppendLine($"\n {logs.Count - count} more entries. Type 'show full log' to see all.");
                 }
 
                 return sb.ToString();
@@ -58,7 +58,7 @@ namespace POE_FINAL
                     return "No activities have been logged yet.";
 
                 StringBuilder sb = new StringBuilder();
-                sb.AppendLine("📋 Complete Activity Log:");
+                sb.AppendLine(" Complete Activity Log:");
                 sb.AppendLine("----------------------------------------");
 
                 for (int i = 0; i < logs.Count; i++)

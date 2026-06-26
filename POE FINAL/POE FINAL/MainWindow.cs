@@ -1,5 +1,4 @@
-﻿using POE_FINAL;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
@@ -20,6 +19,9 @@ namespace POE_FINAL
             InitializeComponent();
             activityLog = new ActivityLog();
             activityLog.AddLog("Application started");
+
+            // Play greeting audio from Part 2
+            Audio.PlayGreeting();
         }
 
         private void CloseButton_Click(object sender, RoutedEventArgs e)
@@ -51,11 +53,11 @@ namespace POE_FINAL
         private string GetWelcomeMessage()
         {
             return $"Hello {userName}! I'm CyberPal, your cybersecurity assistant.\n\n" +
-                   "🛡️ **I can help you with:**\n" +
-                   "📋 Manage cybersecurity tasks\n" +
-                   "🎯 Take a cybersecurity quiz\n" +
-                   "🔒 Get security tips and advice\n" +
-                   "📊 View activity log\n\n" +
+                   " **I can help you with:**\n" +
+                   " Manage cybersecurity tasks\n" +
+                   " Take a cybersecurity quiz\n" +
+                   " Get security tips and advice\n" +
+                   " View activity log\n\n" +
                    "Type 'help' to see all commands, or just ask me anything about cybersecurity!";
         }
 
@@ -75,7 +77,7 @@ namespace POE_FINAL
 
         private void VoiceButton_Click(object sender, RoutedEventArgs e)
         {
-            string voiceResponse = "🎤 Voice input feature coming soon! I'll be able to listen to your questions in a future update.";
+            string voiceResponse = " Voice input feature coming soon! I'll be able to listen to your questions in a future update.";
             AddBotMessage(voiceResponse);
             UpdateResponseDisplay(voiceResponse);
             ScrollToBottom();
@@ -97,7 +99,7 @@ namespace POE_FINAL
             ChatListBox.Items.Clear();
             if (!string.IsNullOrEmpty(userName))
             {
-                string clearMessage = $"🧹 Chat cleared! Welcome back {userName}! Type 'help' to see what I can do for you.";
+                string clearMessage = $" Chat cleared! Welcome back {userName}! Type 'help' to see what I can do for you.";
                 AddBotMessage(clearMessage);
                 UpdateResponseDisplay(clearMessage);
                 ScrollToBottom();
@@ -252,13 +254,12 @@ namespace POE_FINAL
                 return greetings[random.Next(greetings.Length)];
             }
 
-            // ENHANCED NLP
-            string response = GetEnhancedNLPResponse(input);
-            if (!response.Contains("I'm not sure about that"))
+            // FALLBACK: Use Part 2's Conversation class for general chat
+            string response = Conversation.GetResponse(userMessage, userName);
+            if (!response.Contains("I didn't quite understand") && !response.Contains("I'm not sure"))
             {
                 activityLog.AddLog($"NLP detected: {input.Substring(0, Math.Min(30, input.Length))}...");
             }
-
             return response;
         }
 
@@ -582,118 +583,6 @@ namespace POE_FINAL
             return $"🔔 **Reminder Set!**\n📝 '{reminderText}'\n📅 Date: {reminderDate.ToShortDateString()} ({dateDescription})";
         }
 
-        private string GetEnhancedNLPResponse(string input)
-        {
-            // Password topics
-            if (input.Contains("password") || input.Contains("passphrase"))
-            {
-                string[] responses = {
-                    "🔑 **Passwords:** Use a passphrase of 4+ random words (e.g., 'PurpleTigerJumpsHigh') instead of a single complex word.\n\nNever reuse passwords across different accounts - each account needs its own unique password.\n\nEnable Two-Factor Authentication (2FA) whenever possible for an extra layer of security.",
-                    "🔑 **Password Manager:** Use a password manager like Bitwarden or LastPass to generate and store strong passwords securely.\n\nChange your passwords immediately if you suspect any account has been compromised.\n\nA good password manager creates super-strong passwords and fills them in automatically.",
-                    "🔑 **Password Tips:** Create passwords that are long and easy to remember.\n\nFor example: 'BlueTacoTuesday$' is better than 'Btt123'.\n\nRemember: Never write passwords on sticky notes or share them with anyone!"
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Phishing topics
-            if (input.Contains("phish") || input.Contains("scam") || input.Contains("fake email"))
-            {
-                string[] responses = {
-                    "🎣 **Phishing:** Be cautious of emails asking for personal information. Scammers often disguise themselves as trusted organizations.\n\nHover over links before clicking to see the actual URL. Don't trust shortened links from unknown sources.\n\nWhen in doubt, contact the company directly using their official website.",
-                    "🎣 **Scam Detection:** Look for spelling and grammar errors - legitimate companies proofread their emails carefully.\n\nCheck the sender's email address carefully. 'amaz0n@gmail.com' is NOT the real Amazon!\n\nRemember: If something seems too good to be true (like 'You won $1000!'), it's probably a scam.",
-                    "🎣 **Email Safety:** Never enter your password on a site you reached through an email link. Type the URL manually instead.\n\nIf an email says 'urgent' or asks for your password, it's probably a scam. Real companies never ask for passwords by email!"
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Malware topics
-            if (input.Contains("malware") || input.Contains("virus") || input.Contains("trojan"))
-            {
-                string[] responses = {
-                    "🦠 **Malware:** Malware (short for MALicious softWARE) is a bad program that hurts your computer. Viruses are one type of malware.\n\nMalware is like a cold for your computer. It can steal your info, show you ads, or lock your files.\n\nInstall antivirus software (Windows has free one called Defender). It catches viruses before they hurt your computer.",
-                    "🦠 **Virus Protection:** A computer virus spreads from one computer to another, just like a sick person spreads a cold virus.\n\nDon't download programs from strange websites. Stick to official app stores and trusted sites!\n\nNever open email attachments from people you don't know - that's how viruses spread!"
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Ransomware
-            if (input.Contains("ransomware"))
-            {
-                string[] responses = {
-                    "🔒 **Ransomware:** Ransomware locks your files and demands payment. Best defense: Regular backups and never click suspicious links!\n\nBack up your important photos and documents! Save copies to a USB drive or cloud storage.\n\nIf you have backups, ransomware can't hurt you. You can just restore your files!",
-                    "🔒 **Ransomware Warning:** Never pay the ransom! Paying encourages criminals and doesn't guarantee you'll get your files back.\n\nKeep your computer updated and don't click suspicious links. That's the best way to avoid ransomware!"
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Firewall
-            if (input.Contains("firewall"))
-            {
-                string[] responses = {
-                    "🛡️ **Firewall:** A firewall is like a security guard for your internet connection. It decides what data can come in and go out of your computer.\n\nWindows already has a free firewall built-in. Just make sure it's turned on!\n\nA firewall blocks bad guys from accessing your computer through the internet.",
-                    "🛡️ **Firewall Protection:** Think of a firewall as the wall around a castle. It lets friendly people in but keeps enemies out.\n\nCheck your firewall settings by searching 'Windows Security' on your computer.\n\nYou need BOTH a firewall AND antivirus software. They work together to protect you!"
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // 2FA
-            if (input.Contains("2fa") || input.Contains("two factor") || input.Contains("multi-factor"))
-            {
-                string[] responses = {
-                    "📱 **Two-Factor Authentication:** 2FA adds a second verification step. Enable it on email, banking, and social media!\n\nEven if someone steals your password, they still can't get in without the second code!\n\nUse an authenticator app instead of text messages. It's more secure and works even without cell service!",
-                    "📱 **2FA Options:** Authenticator apps are more secure than SMS codes. Hardware keys are even better!\n\nHardware keys are small devices (like YubiKey) that you plug into your computer. They're the strongest form of 2FA.\n\nFor very important accounts (like your email), consider buying a $20-30 security key."
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Identity Theft
-            if (input.Contains("identity theft") || input.Contains("identity"))
-            {
-                string[] responses = {
-                    "🆔 **Identity Theft:** Identity theft is when someone steals your personal information and pretends to be you.\n\nNever share your Social Security number, birth date, or address with strangers online or over the phone.\n\nCheck your bank statements every month. If you see charges you don't recognize, tell your bank immediately!",
-                    "🆔 **Identity Protection:** Thieves can use your identity to open credit cards, take loans, or even commit crimes in your name.\n\nFreeze your credit with the three credit bureaus. It's free and stops criminals from opening accounts in your name.\n\nYou can check your credit report for free once a year at AnnualCreditReport.com."
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Social Engineering
-            if (input.Contains("social engineering") || input.Contains("social"))
-            {
-                string[] responses = {
-                    "🧠 **Social Engineering:** Social engineering is when criminals trick you into giving them information instead of hacking your computer.\n\nScammers might call pretending to be tech support or send emails pretending to be your boss. Always verify before sharing info!\n\nIf someone calls asking for your password, credit card, or personal info - hang up! Call the company back using their official number.",
-                    "🧠 **Stay Safe:** Criminals use psychology to manipulate you. They create fear ('Your account will be closed!') or excitement ('You won a prize!') to make you act without thinking.\n\nStop and think before clicking or sharing. Ask yourself: 'Is this normal? Could this be a trick?'\n\nReal emergencies don't happen by email. If something feels wrong, it probably is!"
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Public WiFi
-            if (input.Contains("public wifi") || input.Contains("wifi") || input.Contains("hotspot"))
-            {
-                string[] responses = {
-                    "📶 **Public WiFi:** Public WiFi is risky! Use a VPN, avoid banking, and turn off file sharing.\n\nDon't do banking or shopping on public WiFi. Save those for your home internet or phone's data plan.\n\nOn public WiFi, assume people can see your activity. Don't type passwords or credit card numbers!",
-                    "📶 **WiFi Safety:** A VPN (Virtual Private Network) creates a secret tunnel for your internet traffic, even on public WiFi.\n\nUse a paid VPN service if you often use public WiFi. It keeps your data private.\n\nFree VPNs might sell your data - that's worse than not using one! Stick with paid, trusted services."
-                };
-                return responses[random.Next(responses.Length)];
-            }
-
-            // Encryption
-            if (input.Contains("encryption"))
-            {
-                return "🔐 **Encryption:** Encryption scrambles data so only authorized parties can read it.\n\nLook for 'https://' in your browser address bar - it means your connection is encrypted.\n\nUse encrypted messaging apps like Signal or WhatsApp for private conversations.";
-            }
-
-            // Default responses
-            string[] defaultResponses = {
-                $"I'm not sure about that, {userName}. Could you ask me about a cybersecurity topic?\n\nTry:\n• 'What is phishing?'\n• 'How do I create strong passwords?'\n• 'What is malware?'\n• 'Tell me about 2FA'\n\nType 'help' to see everything I can teach you!",
-
-                $"Great question! You can ask me things like:\n\n• 'What is ransomware?'\n• 'How does a firewall work?'\n• 'What is identity theft?'\n• 'Give me security tips'\n\nWhat would you like to learn?",
-
-                $"I want to help, but I need you to ask about cybersecurity topics. Try asking:\n\n• 'What is social engineering?'\n• 'Is public WiFi safe?'\n• 'How do I spot a scam email?'\n\nType 'help' for the full list of topics I know about!"
-            };
-
-            return defaultResponses[random.Next(defaultResponses.Length)];
-        }
-
         // ============ HELPER METHODS ============
         private string GetHelpMessage()
         {
@@ -776,13 +665,6 @@ namespace POE_FINAL
             });
         }
     }
-
-    public class ChatMessage
-    {
-        public string Sender { get; set; }
-        public string Text { get; set; }
-        public HorizontalAlignment Alignment { get; set; }
-        public Style BubbleStyle { get; set; }
-        public string Timestamp { get; set; }
-    }
 }
+
+    
